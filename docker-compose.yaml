@@ -1,0 +1,56 @@
+version: '3.7'
+
+services:
+   spark-master:
+    container_name: spark_modified_m1
+    image: spark_modified
+    restart: unless-stopped
+    build:
+       context: ./spark
+       dockerfile: Dockerfile
+    command: bin/spark-class org.apache.spark.deploy.master.Master
+    ports:
+     - "9090:8080"
+     - "7077:7077"
+   spark-worker-1:
+    container_name: spark_modified_w1
+    image: spark_modified
+    restart: unless-stopped
+    build:
+       context: ./spark
+       dockerfile: Dockerfile
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+    - spark-master
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 2g
+      SPARK_MASTER_URL: spark://spark-master:7077
+   spark-worker-2:
+    container_name: spark_modified_w2
+    image: spark_modified
+    restart: unless-stopped
+    build:
+       context: ./spark
+       dockerfile: Dockerfile
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+    - spark-master
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 2g
+      SPARK_MASTER_URL: spark://spark-master:7077
+   arangodb_db_container:
+     image: arangodb:latest
+     environment:
+       ARANGO_ROOT_PASSWORD: rootpassword
+     ports:
+      - "8529:8529"
+     volumes:
+       - arangodb_data_container:/var/lib/arangodb3
+       - arangodb_apps_data_container:/var/lib/arangodb3-apps
+volumes:
+  arangodb_data_container:
+  arangodb_apps_data_container:
