@@ -1,7 +1,7 @@
 import json
 import os
 import uuid
-
+import datetime
 from pyspark.shell import sc
 # Import the necessary modules
 from pyspark.sql import SparkSession
@@ -101,6 +101,10 @@ def process_batch(df, epoch_id):
         logging.warning(f"Data: {row.decoded_field}")
         document = json.loads(row.decoded_field)
         document["_key"] = str(uuid.uuid4())
+        document["processor"] = "Processed By Pyspark"
+        current_timestamp = datetime.datetime.now()
+        document["date_processed"] = current_timestamp.strftime("%Y-%m-%d %H:%M:%S")
+        logging.warning(f"Data Uploaded: {document}")
         collection.createDocument(document).save()
         decoded_fields.append(row.decoded_field)
 
