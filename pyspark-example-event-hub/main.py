@@ -14,14 +14,14 @@ logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s -
 dotenv.load_dotenv()
 
 sc.setLogLevel("warn")
-spark = SparkSession.builder \
+spark_session = SparkSession.builder \
     .master("spark://localhost:7077") \
-    .appName("Pyspark Kafka") \
+    .appName("Listen for new files added to azure blob storage") \
     .getOrCreate()
 
 # Define the schema for the incoming JSON data
 #x = spark.conf.get("spark.loadedJars")
-print(spark.sparkContext._jsc.sc().listJars())
+
 schema = StructType().add("message", StringType())
 
 BLOB_STORAGE_CONNECTION_STRING= os.getenv("BLOB_STORAGE_CONNECTION_STRING")
@@ -63,7 +63,8 @@ eventhubs_conf = {
 }
 
 # Read events from Azure Event Hub
-stream_data = spark.readStream \
+stream_data = spark_session\
+    .readStream \
     .format("eventhubs") \
     .options(**eventhubs_conf) \
     .load()
