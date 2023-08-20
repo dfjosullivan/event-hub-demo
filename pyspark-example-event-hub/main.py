@@ -12,20 +12,13 @@ import logging
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 
 dotenv.load_dotenv()
-# Create a SparkSession
-#spark = SparkSession.builder \
-#   .appName("My App") \
-#   .getOrCreate()
 
-#spark = SparkSession.builder.remote("sc://localhost:15002").getOrCreate()
 sc.setLogLevel("warn")
 spark = SparkSession.builder \
     .master("spark://localhost:7077") \
     .appName("Pyspark Kafka") \
     .getOrCreate()
-#.config("spark.jars", "com.microsoft.azure:azure-eventhubs-spark_2.12:2.3.22") \
-#.config("spark.jars.packages", "azure-eventhubs-spark_2.12-2.3.22.jar") \
-# com.microsoft.azure:azure-eventhubs-spark_2.12:2.3.18
+
 # Define the schema for the incoming JSON data
 #x = spark.conf.get("spark.loadedJars")
 print(spark.sparkContext._jsc.sc().listJars())
@@ -40,6 +33,20 @@ ARANGO_USERNAME=os.getenv("ARANGO_USERNAME")
 ARANGO_PASSWORD=os.getenv("ARANGO_PASSWORD")
 ARANGO_URL=os.getenv("ARANGO_URL")
 ARANGO_DB=os.getenv("ARANGO_DB")
+
+# Write assertions to check if the environment variables are not empty
+assert BLOB_STORAGE_CONNECTION_STRING, "BLOB_STORAGE_CONNECTION_STRING is not set or empty"
+assert BLOB_CONTAINER_NAME, "BLOB_CONTAINER_NAME is not set or empty"
+assert EVENT_HUB_CONNECTION_STRING, "EVENT_HUB_CONNECTION_STRING is not set or empty"
+assert EVENT_HUB_NAME, "EVENT_HUB_NAME is not set or empty"
+assert ARANGO_COLLECTION_NAME, "ARANGO_COLLECTION_NAME is not set or empty"
+assert ARANGO_USERNAME, "ARANGO_USERNAME is not set or empty"
+assert ARANGO_PASSWORD, "ARANGO_PASSWORD is not set or empty"
+assert ARANGO_URL, "ARANGO_URL is not set or empty"
+assert ARANGO_DB, "ARANGO_DB is not set or empty"
+
+# If all assertions pass, print a success message
+print("All environment variables are properly set.")
 
 starting_offsets = {
     "0": "-1", # latest offset
