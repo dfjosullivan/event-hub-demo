@@ -15,7 +15,7 @@ Run the job with:
 
 ../venv/bin/spark-submit --master spark://localhost:7077 main.py
 
-
+Copy to pyspark/jars
 
 
 Reference

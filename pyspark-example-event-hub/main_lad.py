@@ -9,14 +9,9 @@ from pyspark.sql.functions import *
 import dotenv
 from pyArango.connection import Connection
 import logging
-
-from pyspark.sql.streaming import DataStreamReader
-from pyspark.streaming import StreamingContext
-
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 
 dotenv.load_dotenv()
-
 
 sc.setLogLevel("warn")
 spark_session = SparkSession.builder \
@@ -24,23 +19,55 @@ spark_session = SparkSession.builder \
     .appName("Listen for new files added to azure blob storage") \
     .getOrCreate()
 
+# Define the schema for the incoming JSON data
+#x = spark.conf.get("spark.loadedJars")
+
+schema = StructType().add("message", StringType())
 
 BLOB_STORAGE_CONNECTION_STRING= os.getenv("BLOB_STORAGE_CONNECTION_STRING")
 BLOB_CONTAINER_NAME=os.getenv("BLOB_CONTAINER_NAME")
-EVENT_HUB_CONNECTION_STRING=os.getenv("EVENT_HUB_CONNECTION_STRING")
-EVENT_HUB_NAME=os.getenv("EVENT_HUB_NAME")
-ARANGO_COLLECTION_NAME=os.getenv("ARANGO_COLLECTION_NAME")
+EVENT_HUB_CONNECTION_STRING=os.getenv("EVENT_HUB_CONNECTION_STRING_LAD")
+EVENT_HUB_NAME=os.getenv("EVENT_HUB_NAME_LAD")
+ARANGO_COLLECTION_NAME=os.getenv("ARANGO_COLLECTION_NAME_LAD")
 ARANGO_USERNAME=os.getenv("ARANGO_USERNAME")
 ARANGO_PASSWORD=os.getenv("ARANGO_PASSWORD")
 ARANGO_URL=os.getenv("ARANGO_URL")
 ARANGO_DB=os.getenv("ARANGO_DB")
 
+# Write assertions to check if the environment variables are not empty
+assert BLOB_STORAGE_CONNECTION_STRING, "BLOB_STORAGE_CONNECTION_STRING is not set or empty"
+assert BLOB_CONTAINER_NAME, "BLOB_CONTAINER_NAME is not set or empty"
+assert EVENT_HUB_CONNECTION_STRING, "EVENT_HUB_CONNECTION_STRING is not set or empty"
+assert EVENT_HUB_NAME, "EVENT_HUB_NAME is not set or empty"
+assert ARANGO_COLLECTION_NAME, "ARANGO_COLLECTION_NAME is not set or empty"
+assert ARANGO_USERNAME, "ARANGO_USERNAME is not set or empty"
+assert ARANGO_PASSWORD, "ARANGO_PASSWORD is not set or empty"
+assert ARANGO_URL, "ARANGO_URL is not set or empty"
+assert ARANGO_DB, "ARANGO_DB is not set or empty"
 
-# Configure the DataStreamReader
-data_stream_reader = DataStreamReader.f
-data_stream_reader.option("container", "my_container")
-data_stream_reader.option("path", "my_path")
-data_stream_reader.option("format", "json")
+# If all assertions pass, print a success message
+print("All environment variables are properly set.")
+
+starting_offsets = {
+    "0": "-1", # latest offset
+}
+
+cn_string = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(EVENT_HUB_CONNECTION_STRING)
+
+# Configure the connection to the Event Hub
+eventhubs_conf = {
+    "eventhubs.connectionString": cn_string,
+    "eventhubs.eventHubName": EVENT_HUB_NAME,
+    "eventhubs.consumerGroup": "$Default",
+    "startingPosition": "earliest"
+}
+
+# Read events from Azure Event Hub
+stream_data = spark_session\
+    .readStream \
+    .format("eventhubs") \
+    .options(**eventhubs_conf) \
+    .load()
 
 # Parse JSON data
 #parsed_events = stream_data.select(from_json(stream_data.body.cast("string"), schema).alias("data"))
@@ -68,7 +95,7 @@ collection_name = ARANGO_COLLECTION_NAME
 # Check if the collection exists
 if not database.hasCollection(collection_name):
     # Create the collection if it does not exist
-    collection = database.createCollection(className="DocumentCollection", name=collection_name)
+    collection = database.createCollection(className="Collection", name=collection_name)
     print(f"Collection '{collection_name}' created.")
 else:
     collection = database[collection_name]

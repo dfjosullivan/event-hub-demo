@@ -26,9 +26,9 @@ schema = StructType().add("message", StringType())
 
 BLOB_STORAGE_CONNECTION_STRING= os.getenv("BLOB_STORAGE_CONNECTION_STRING")
 BLOB_CONTAINER_NAME=os.getenv("BLOB_CONTAINER_NAME")
-EVENT_HUB_CONNECTION_STRING=os.getenv("EVENT_HUB_CONNECTION_STRING")
-EVENT_HUB_NAME=os.getenv("EVENT_HUB_NAME")
-ARANGO_COLLECTION_NAME=os.getenv("ARANGO_COLLECTION_NAME")
+EVENT_HUB_CONNECTION_STRING=os.getenv("EVENT_HUB_CONNECTION_STRING_ACLOGS")
+EVENT_HUB_NAME=os.getenv("EVENT_HUB_NAME_ACLOGS")
+ARANGO_COLLECTION_NAME=os.getenv("ARANGO_COLLECTION_NAME_ACLOGS")
 ARANGO_USERNAME=os.getenv("ARANGO_USERNAME")
 ARANGO_PASSWORD=os.getenv("ARANGO_PASSWORD")
 ARANGO_URL=os.getenv("ARANGO_URL")
@@ -95,7 +95,7 @@ collection_name = ARANGO_COLLECTION_NAME
 # Check if the collection exists
 if not database.hasCollection(collection_name):
     # Create the collection if it does not exist
-    collection = database.createCollection(className="DocumentCollection", name=collection_name)
+    collection = database.createCollection(className="Collection", name=collection_name)
     print(f"Collection '{collection_name}' created.")
 else:
     collection = database[collection_name]
