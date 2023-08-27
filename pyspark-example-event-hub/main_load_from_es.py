@@ -113,11 +113,8 @@ def process_batch(df):
 
     logging.warning(f"Processed batch")
 
-#db_query = streaming_df.writeStream \
-#    .foreachBatch(process_batch)  \
-#    .format("console") \
-#    .start() \
-#    .awaitTermination()
+
+
 
 df = spark_session.read.format("org.elasticsearch.spark.sql") \
     .option("es.resource", es_index) \
