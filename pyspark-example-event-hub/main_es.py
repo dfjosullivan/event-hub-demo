@@ -57,7 +57,7 @@ print("All environment variables are properly set.")
 
 
 # Define the Elasticsearch index and query
-es_index = "your-elasticsearch-index"
+es_index = "example_index"
 es_query = '{ "query": { "match_all": {} }}'
 
 
@@ -95,27 +95,23 @@ else:
     collection = database[collection_name]
     print(f"Collection '{collection_name}' already exists.")
 
-def process_batch(df, epoch_id):
-    logging.warning(f"Processing micro-batch {epoch_id}")
+def process_batch(df):
     logging.warning(f"Processing micro-batch of size {str(df.count())}")
     decoded_fields = []
     for row in df.collect():
-        logging.warning(f"Data: {row.decoded_field}")
-        document = json.loads(row.decoded_field)
+        logging.warning(f"Data: {row}")
+        document = row.asDict()
         document["_key"] = str(uuid.uuid4())
         document["processor"] = "Processed By Pyspark"
         current_timestamp = datetime.datetime.now()
         document["date_processed"] = current_timestamp.strftime("%Y-%m-%d %H:%M:%S")
         logging.warning(f"Data Uploaded: {document}")
         collection.createDocument(document).save()
-        decoded_fields.append(row.decoded_field)
+        decoded_fields.append(row.asDict())
 
     log_path = "log_output.json"
 
-    with open(log_path, "w") as log_file:
-        json.dump(decoded_fields , log_file, indent=2)
-
-    logging.warning(f"Processed micro-batch {epoch_id}")
+    logging.warning(f"Processed batch")
 
 #db_query = streaming_df.writeStream \
 #    .foreachBatch(process_batch)  \
@@ -128,5 +124,9 @@ df = spark_session.read.format("org.elasticsearch.spark.sql") \
     .option("es.query", es_query) \
     .load()
 
+process_batch(df)
 
-df.show()
+
+
+
+spark_session.stop()
