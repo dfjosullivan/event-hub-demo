@@ -48,9 +48,7 @@ assert ARANGO_DB, "ARANGO_DB is not set or empty"
 # If all assertions pass, print a success message
 print("All environment variables are properly set.")
 
-starting_offsets = {
-    "0": "-1", # latest offset
-}
+
 
 cn_string = sc._jvm.org.apache.spark.eventhubs.EventHubsUtils.encrypt(EVENT_HUB_CONNECTION_STRING)
 

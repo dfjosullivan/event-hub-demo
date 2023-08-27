@@ -34,7 +34,12 @@ assert ARANGO_DB, "ARANGO_DB is not set or empty"
 assert ES_NODE, "ES_NODE is not set or empty"
 assert ES_USER, "ES_USER is not set or empty"
 assert ES_PASSWORD, "ES_PASSWORD is not set or empty"
-
+#
+# .config("es.nodes.wan.only", "true")  remove
+#     .config("es.nodes.wan.only", "true") \
+#     .config("es.nodes.discovery", "true") \
+#     .config("es.net.ssl", "false") \
+#     .config("es.nodes.client.only", "false") \
 sc.setLogLevel("warn")
 spark_session = SparkSession.builder \
     .master("spark://localhost:7077") \
@@ -56,10 +61,10 @@ es_index = "your-elasticsearch-index"
 es_query = '{ "query": { "match_all": {} }}'
 
 
-streaming_df = spark_session.readStream.format("org.elasticsearch.spark.sql") \
-    .option("es.resource", es_index) \
-    .option("es.query", es_query) \
-    .load()
+#streaming_df = spark_session.readStream.format("org.elasticsearch.spark.sql") \
+#    .option("es.resource", es_index) \
+#    .option("es.query", es_query) \
+#    .load()
 
 
 
@@ -112,10 +117,16 @@ def process_batch(df, epoch_id):
 
     logging.warning(f"Processed micro-batch {epoch_id}")
 
-db_query = streaming_df.writeStream \
-    .foreachBatch(process_batch)  \
-    .format("console") \
-    .start() \
-    .awaitTermination()
+#db_query = streaming_df.writeStream \
+#    .foreachBatch(process_batch)  \
+#    .format("console") \
+#    .start() \
+#    .awaitTermination()
+
+df = spark_session.read.format("org.elasticsearch.spark.sql") \
+    .option("es.resource", es_index) \
+    .option("es.query", es_query) \
+    .load()
 
 
+df.show()
