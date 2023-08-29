@@ -16,3 +16,8 @@ RUN curl -O https://repo1.maven.org/maven2/org/scala-lang/modules/scala-java8-co
 RUN curl -O https://repo1.maven.org/maven2/org/apache/qpid/proton-j/0.34.1/proton-j-0.34.1.jar \
     && mv proton-j-0.34.1.jar /opt/bitnami/spark/jars
 
+RUN curl -O https://repo1.maven.org/maven2/org/elasticsearch/elasticsearch-hadoop/8.9.1/elasticsearch-hadoop-8.9.1.jar \
+    && mv elasticsearch-hadoop-8.9.1.jar /opt/bitnami/spark/jars
+
+RUN curl -O https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch-spark-30_2.12/8.9.1 \
+    && mv elasticsearch-spark-30_2.12-8.9.1.jar /opt/bitnami/spark/jars
