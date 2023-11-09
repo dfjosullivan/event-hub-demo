@@ -107,7 +107,7 @@ ES_NODE=os.getenv("ES_NODE")
 ES_USER=os.getenv("ES_USER")
 ES_PASSWORD=os.getenv("ES_PASSWORD")
 es_index = os.getenv("ES_INDEX")
-field_id = "test"
+field_id = os.getenv("ES_FIELD_ID")
 
 def process_batch(df, epoch_id):
     logging.warning(f"Processing micro-batch {epoch_id}")
