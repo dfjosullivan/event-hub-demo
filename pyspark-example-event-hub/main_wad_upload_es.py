@@ -2,6 +2,7 @@ import json
 import os
 import uuid
 import datetime
+
 from pyspark.shell import sc
 # Import the necessary modules
 from pyspark.sql import SparkSession
@@ -76,6 +77,7 @@ selected_field_df = stream_data.select(col("body").cast("string").alias("decoded
 
 
 
+
 arango_connection = Connection(arangoURL=ARANGO_URL, username=ARANGO_USERNAME, password=ARANGO_PASSWORD)
 database_name = ARANGO_DB
 
@@ -104,7 +106,7 @@ else:
 ES_NODE=os.getenv("ES_NODE")
 ES_USER=os.getenv("ES_USER")
 ES_PASSWORD=os.getenv("ES_PASSWORD")
-es_index = "example_index"
+es_index = os.getenv("ES_INDEX")
 field_id = "test"
 
 def process_batch(df, epoch_id):
@@ -120,22 +122,11 @@ def process_batch(df, epoch_id):
        # "es.mapping.id": field_id # Specify an ID field
     }
 
+    #df1 = spark.createDataFrame(data, columns)
     df.write.format("org.elasticsearch.spark.sql") \
         .options(**es_write_conf) \
         .mode("append") \
         .save()
-
-
-    #     for row in df.collect():
-    #         logging.warning(f"Data: {row.decoded_field}")
-    #         document = json.loads(row.decoded_field)
-    #         document["_key"] = str(uuid.uuid4())
-    #         document["processor"] = "Processed By Pyspark"
-    #         current_timestamp = datetime.datetime.now()
-    #         document["date_processed"] = current_timestamp.strftime("%Y-%m-%d %H:%M:%S")
-    #         logging.warning(f"Data Uploaded: {document}")
-    #         collection.createDocument(document).save()
-    #         decoded_fields.append(row.decoded_field)
 
 
 
