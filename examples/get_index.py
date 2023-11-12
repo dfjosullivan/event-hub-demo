@@ -1,10 +1,12 @@
+import os
+
 from elasticsearch import Elasticsearch
 
 # Initialize Elasticsearch client
-es_client = Elasticsearch(["http://localhost:9200"])  # Replace with your Elasticsearch server address
+es_client = Elasticsearch(["http://" + os.getenv("ES_NODE") + ":9200"])  # Replace with your Elasticsearch server address
 
 # Elasticsearch index name
-index_name = "example_index"
+index_name = os.getenv("ES_INDEX")
 
 # Search query to retrieve all records (match_all)
 query = {

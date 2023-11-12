@@ -1,3 +1,5 @@
+import os
+
 import requests
 import time
 
@@ -11,7 +13,7 @@ for num in range(1, num_iterations + 1):
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S")
     }
 
-    post_url = f"http://localhost:9200/{index_name}/_doc/"
+    post_url = f"http://" + os.getenv("ES_NODE") + ":9200/{index_name}/_doc/"
     post_response = requests.post(post_url, json=payload)
 
     print(f"POST request {num} response:", post_response.text)

@@ -1,8 +1,10 @@
+import os
+
 import requests
 import time
 
 # Elasticsearch index name
-index_name = "example_index3"
+index_name = os.getenv("ES_INDEX")
 
 
 mappings = {
@@ -45,7 +47,7 @@ mappings = {
 
 
 # Initial PUT request to create the index
-put_url = f"http://localhost:9200/{index_name}"
+put_url = f"http://" + os.getenv("ES_NODE") + ":9200/{index_name}"
 put_response = requests.put(put_url, json=mappings)
 print("Index creation response:", put_response.text)
 

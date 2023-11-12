@@ -78,31 +78,6 @@ selected_field_df = stream_data.select(col("body").cast("string").alias("decoded
 
 
 
-arango_connection = Connection(arangoURL=ARANGO_URL, username=ARANGO_USERNAME, password=ARANGO_PASSWORD)
-database_name = ARANGO_DB
-
-# Check if the database exists
-if not arango_connection.hasDatabase(database_name):
-    # Create the database if it does not exist
-    database = arango_connection.createDatabase(name=database_name)
-    print(f"Database '{database_name}' created.")
-else:
-    database = arango_connection[database_name]
-    print(f"Database '{database_name}' already exists.")
-
-
-# Specify the collection name
-collection_name = ARANGO_COLLECTION_NAME
-
-# Check if the collection exists
-if not database.hasCollection(collection_name):
-    # Create the collection if it does not exist
-    collection = database.createCollection(className="Collection", name=collection_name)
-    print(f"Collection '{collection_name}' created.")
-else:
-    collection = database[collection_name]
-    print(f"Collection '{collection_name}' already exists.")
-
 ES_NODE=os.getenv("ES_NODE")
 ES_USER=os.getenv("ES_USER")
 ES_PASSWORD=os.getenv("ES_PASSWORD")
